@@ -104,7 +104,8 @@ namespace DUMB
 
                 byte[] buffer = new byte[ISAAC.SIZE];
                 int read = s.Read(buffer, 0, ISAAC.SIZE);
-                do {
+                do
+                {
                     csprng.Isaac();
 
                     for (int i = 0; i < read; i++)
@@ -114,6 +115,7 @@ namespace DUMB
                     s.Write(buffer, 0, read);
                 } while ((read = s.Read(buffer, 0, ISAAC.SIZE)) > 0);
             }
+            catch (UnauthorizedAccessException) { return; } //Fixes crashes on files with the readonly attribute
             //catch { return; } //If you were to actually use this silently
             finally
             {
