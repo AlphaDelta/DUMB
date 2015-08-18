@@ -74,7 +74,7 @@
             this.btnALLAHUAKBAR.Name = "btnALLAHUAKBAR";
             this.btnALLAHUAKBAR.Size = new System.Drawing.Size(75, 23);
             this.btnALLAHUAKBAR.TabIndex = 3;
-            this.btnALLAHUAKBAR.Text = "Allahu Akbar";
+            this.btnALLAHUAKBAR.Text = "Ok";
             this.btnALLAHUAKBAR.UseVisualStyleBackColor = true;
             this.btnALLAHUAKBAR.Click += new System.EventHandler(this.btnALLAHUAKBAR_Click);
             // 
