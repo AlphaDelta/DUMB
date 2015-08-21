@@ -57,5 +57,20 @@ namespace DUMB
         }
 
         delegate void Action();
+
+        protected override void WndProc(ref Message message)
+        {
+
+            switch (message.Msg)
+            {
+                case WinAPI.WM_SYSCOMMAND:
+                    int command = message.WParam.ToInt32() & 0xfff0;
+                    if (command == WinAPI.SC_MOVE)
+                        return;
+                    break;
+            }
+
+            base.WndProc(ref message);
+        }
     }
 }

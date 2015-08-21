@@ -43,5 +43,10 @@ namespace DUMB
 
         [DllImport("kernel32.dll")]
         public static extern int GetCurrentThreadId();
+
+
+        public const int
+        WM_SYSCOMMAND = 0x0112,
+        SC_MOVE = 0xF010;
     }
 }
