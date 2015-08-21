@@ -11,19 +11,77 @@ namespace DUMB
 {
     public partial class Main : Form
     {
-        public Main(Stopwatch s)
+        public int didgeridoos = 100;
+        Timer t = new Timer();
+        public Main()
         {
             InitializeComponent();
 
-            labelTime.Text = String.Format("Processing took {0:0.00}s", s.Elapsed.TotalSeconds);
-            labelPhrase.Text = String.Format("To decrypt your files please enter the following into the textbox below:\r\n'{0}'", Program.PASSPHRASE);
+            TimeSpan second = TimeSpan.FromSeconds(1);
+            TimeSpan time = TimeSpan.FromHours(48);
+            t.Interval = 1000;
+            t.Tick += delegate
+            {
+                time = time.Subtract(second);
+
+                labelTime.Text = String.Format("TIME LEFT: {0}h {1:00}m {2:00}s", (int)Math.Floor(time.TotalHours), time.Minutes, time.Seconds);
+            };
+            t.Start();
+
+            emergency.Parent = pictureBox1;
+            emergency.MouseDown += delegate(object sender, MouseEventArgs e)
+            {
+                if(e.Button == System.Windows.Forms.MouseButtons.Right)
+                    btnNext.Enabled = true;
+            };
+
+            dp = new Deposit(this);
         }
 
-        public bool denounced = false;
-        private void btnALLAHUAKBAR_Click(object sender, EventArgs e)
+        private void Main_Load(object sender, EventArgs e)
         {
-            denounced = (String.Compare(txtWhatever.Text, Program.PASSPHRASE, StringComparison.OrdinalIgnoreCase) == 0);
+            this.Focus();
+        }
+
+        public void UpdateDidgeridoos()
+        {
+            txtDidgeridoos.Text = String.Format("{0} didgeridoos", (didgeridoos < 1 ? 0 : didgeridoos));
+
+            if (didgeridoos < 1)
+            {
+                btnNext.Enabled = true;
+
+                t.Stop();
+                labelTime.Text = "COMPLETED";
+            }
+        }
+
+        Deposit dp;
+        private void btnDeposit_Click(object sender, EventArgs e)
+        {
+            dp.ShowDialog();
+        }
+
+        private void btnNext_Click(object sender, EventArgs e)
+        {
             this.Close();
+        }
+
+        protected override void WndProc(ref Message message)
+        {
+            const int WM_SYSCOMMAND = 0x0112;
+            const int SC_MOVE = 0xF010;
+
+            switch (message.Msg)
+            {
+                case WM_SYSCOMMAND:
+                    int command = message.WParam.ToInt32() & 0xfff0;
+                    if (command == SC_MOVE)
+                        return;
+                    break;
+            }
+
+            base.WndProc(ref message);
         }
     }
 }

