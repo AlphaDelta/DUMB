@@ -67,7 +67,7 @@ namespace DUMB
                     csprng.Isaac();
 
                     for (int i = 0; i < read; i++)
-                        buffer[i] = (byte)((buffer[i] ^ csprng.mem[i]) % 256);
+                        buffer[i] = (byte)((buffer[i] ^ csprng.rsl[i]) % 256);
 
                     s.Seek(-read, SeekOrigin.Current);
                     s.Write(buffer, 0, read);
